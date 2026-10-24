@@ -12,7 +12,8 @@ import { createRequire } from 'node:module';
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 
-export const GPU_FLAGS = ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'];
+// d3d11 is Windows-only; on macOS ANGLE's GPU backend is Metal.
+export const GPU_FLAGS = [process.platform === 'darwin' ? '--use-angle=metal' : '--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'];
 export const STEADY_FLAGS = [
   '--disable-background-timer-throttling',
   '--disable-backgrounding-occluded-windows',
