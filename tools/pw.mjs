@@ -10,6 +10,8 @@
 // renderer, launch() retries headed with the window parked off-screen.
 import { createRequire } from 'node:module';
 import { execSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 // d3d11 is Windows-only; on macOS ANGLE's GPU backend is Metal.
@@ -45,8 +47,42 @@ export async function probeRenderer(browser) {
   }
 }
 
+// Offline three.js: when an unpacked three@0.186.0 npm package exists here, every context serves the CDN
+// URLs from it, so runs work without network (sandboxed agent lanes). A page-level route registered later
+// (boot-cdn-failure aborts the CDN) still wins over this context-level one.
+const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.186.0/';
+const THREE_DIR = process.env.KK_THREE_DIR || path.join(os.homedir(), '.cache', 'kagit-kart', 'three-0.186.0');
+
+async function serveThreeOffline(ctx) {
+  if (!existsSync(path.join(THREE_DIR, 'build', 'three.module.js'))) return;
+  await ctx.route(`${THREE_CDN}**`, (route) => {
+    const rel = new URL(route.request().url()).pathname.slice(new URL(THREE_CDN).pathname.length);
+    const file = path.resolve(THREE_DIR, rel);
+    if (!file.startsWith(THREE_DIR + path.sep) || !existsSync(file)) return route.continue();
+    return route.fulfill({ status: 200, contentType: 'text/javascript; charset=utf-8', body: readFileSync(file) });
+  });
+}
+
+function withOffline(browser) {
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (opts) => { const ctx = await newContext(opts); await serveThreeOffline(ctx); return ctx; };
+  browser.newPage = async (opts) => {
+    const ctx = await browser.newContext(opts);
+    const page = await ctx.newPage();
+    page.on('close', () => ctx.close().catch(() => {}));
+    return page;
+  };
+  return browser;
+}
+
 // Returns { browser, mode: 'headless'|'headed-offscreen', flags, renderer }.
-export async function launch({ extraArgs = [], forceHeaded = false } = {}) {
+export async function launch(options = {}) {
+  const l = await launchRaw(options);
+  withOffline(l.browser);
+  return l;
+}
+
+async function launchRaw({ extraArgs = [], forceHeaded = false } = {}) {
   const { chromium } = loadPlaywright();
   const flags = [...GPU_FLAGS, ...STEADY_FLAGS, ...extraArgs];
   if (!forceHeaded) {
