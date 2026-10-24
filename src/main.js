@@ -26,8 +26,9 @@ import { createScenery } from './scenery/scenery.js';
 import { createFX } from './fx/fx.js';
 import { createCinematics } from './cinematics/cinematics.js';
 import { installTestApi } from './test/testApi.js';
+import { lang, t } from './i18n/i18n.js';
 
-document.documentElement.lang = 'tr';
+document.documentElement.lang = lang();
 
 // 'setup' (startRace until intro) neither steps nor pauses, and every race entry ignores calls in it.
 const STEP_PHASES = new Set(['countdown', 'race', 'finishing', 'results']);
@@ -37,6 +38,7 @@ const SETTING_CHOICES = {
   quality: ['auto', ...QUALITY_LEVELS],
   reducedMotion: ['auto', 'on', 'off'],
   touchControls: ['auto', 'on', 'off'],
+  lang: ['auto', 'tr', 'en'],
 };
 
 const events = createEvents();
@@ -762,7 +764,7 @@ function boot() {
     renderer = createRenderer(game, root);
   } catch (e) {
     const card = document.getElementById('kk-boot');
-    if (card) card.innerHTML = 'Kâğıt Kart<small>Bu tarayıcı WebGL2 desteklemiyor.</small>';
+    if (card) card.replaceChildren('Kâğıt Kart', Object.assign(document.createElement('small'), { textContent: t('boot.noWebgl2') }));
     console.error('[boot] WebGL renderer failed', e);
     return;
   }
@@ -820,7 +822,7 @@ function showBootFailure(e) {
   root.appendChild(card);
   const reason = String((e && e.message) || e || '').slice(0, 120);
   const small = document.createElement('small');
-  small.textContent = `Oyun başlatılamadı: ${reason}`;
+  small.textContent = t('boot.startFail', { reason });
   card.replaceChildren('Kâğıt Kart', small);
 }
 

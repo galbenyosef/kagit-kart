@@ -2,6 +2,7 @@
 // banners, threat marker, ink splat, lap-line page flip and time-trial splits.
 import { h, svg, clear, createLetterCanvas, fmtTime, fmtSplit, up, mulberry, lt, setLt } from './dom.js';
 import { ITEMS, ITEM_IDS, WRONG_SIGN } from './icons.js';
+import { t, tn, ordinal } from '../i18n/i18n.js';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 const s = (tag, attrs = {}) => {
@@ -94,7 +95,7 @@ export function createHUD(ctx) {
 
   // ------------------------------------------------------------- lap + clock
   const lapLt = lt('');
-  const lapEl = h('span', { class: 'kk-lap' }, h('small', null, up('Tur')), lapLt);
+  const lapEl = h('span', { class: 'kk-lap' }, h('small', null, up(t('hud.lap'))), lapLt);
   const clock = createLetterCanvas('kk-clockc', { style: 'label', tabular: true, align: 'right', seed: 'clock', fit: 0.62,
     colors: { fill: '#2d2a32', shadow: 'rgba(45,42,50,.28)' } });
   const split = h('div', { class: 'kk-split' });
@@ -112,7 +113,7 @@ export function createHUD(ctx) {
   function setPlace(n, total, stamp) {
     shownPlace = n;
     shownTotal = total;
-    setLt(placeLt, `${n}.`, 'stamp', { colors: { ink: PLACE_INK[n] || 'var(--ink)' } });
+    setLt(placeLt, ordinal(n), 'stamp', { colors: { ink: PLACE_INK[n] || 'var(--ink)' } });
     placeOf.textContent = `/${total}`;
     placeOf.style.display = total > 1 ? '' : 'none';
     place.className = 'kk-place';
@@ -206,7 +207,7 @@ export function createHUD(ctx) {
 
   function countdown(n) {
     countEl?.remove();
-    const text = n > 0 ? String(n) : 'Başla!';
+    const text = n > 0 ? String(n) : t('hud.go');
     const num = h('div', { class: 'kk-count-num' + (n > 0 ? '' : ' is-go') },
       lt(text, 'light', { halftone: true, misregister: 0.04, colors: { plate: PLATES[n] || 'var(--red)' } }));
     countEl = h('div', { class: 'kk-count-wrap' }, num);
@@ -236,7 +237,7 @@ export function createHUD(ctx) {
   function wrongWay(on) {
     if (on && !wrongEl) {
       wrongEl = h('div', { class: 'kk-wrong-wrap' }, h('div', { class: 'kk-wrong' },
-        svg(WRONG_SIGN, 'kk-sign'), h('b', null, lt('Ters yön', 'card'))));
+        svg(WRONG_SIGN, 'kk-sign'), h('b', null, lt(t('hud.wrongWay'), 'card'))));
       center.appendChild(wrongEl);
     } else if (!on && wrongEl) {
       wrongEl.remove();
@@ -247,8 +248,8 @@ export function createHUD(ctx) {
   function finish(placeN) {
     finishEl?.remove();
     finishEl = h('div', { class: 'kk-finish' },
-      h('div', { class: 'kk-checker-wrap kk-slam' }, h('div', { class: 'kk-checker' }, lt('Bitiş!'))),
-      h('div', { class: 'kk-grade' + (placeN <= 3 ? '' : ' is-meh') }, gradeLt(`${placeN}. oldun`, placeN > 3)));
+      h('div', { class: 'kk-checker-wrap kk-slam' }, h('div', { class: 'kk-checker' }, lt(t('hud.finish')))),
+      h('div', { class: 'kk-grade' + (placeN <= 3 ? '' : ' is-meh') }, gradeLt(t('hud.finishPlace', { place: ordinal(placeN) }), placeN > 3)));
     center.appendChild(finishEl);
   }
 
@@ -256,7 +257,7 @@ export function createHUD(ctx) {
   const flipLayer = h('div', { class: 'kk-layer' });
   function flip(lap) {
     if (ctx.reduced()) return;
-    const f = h('div', { class: 'kk-flip' }, h('i'), h('b', null, lt(`${lap}. tur`, 'card')));
+    const f = h('div', { class: 'kk-flip' }, h('i'), h('b', null, lt(t('hud.lapFlip', { lap }), 'card')));
     flipLayer.appendChild(f);
     after(1.2, () => f.remove());
   }
@@ -438,17 +439,17 @@ export function createHUD(ctx) {
 
     onCountdown({ n }) { countdown(n); },
     onLap({ kart, lap }) { if (isMe(kart)) flip(lap); },
-    onFinalLap({ kart }) { if (isMe(kart)) banner('Son tur'); },
+    onFinalLap({ kart }) { if (isMe(kart)) banner(t('hud.finalLap')); },
     onWrongWay({ kart, on }) { if (isMe(kart)) wrongWay(!!on); },
     onFinish({ kart, place: pl }) { if (isMe(kart)) { wrongWay(false); finish(pl || kart.place); } },
     onInked({ kart, duration }) { if (isMe(kart)) splat(duration); },
     onThreat({ kart, kind, eta }) { if (isMe(kart)) onThreat(kind, eta); },
     onBoost({ kart, source, grade }) {
       if (!isMe(kart) || source !== 'start') return;
-      if (grade === 'perfect') tag('Harika çıkış!');
-      else if (grade === 'good') tag('İyi çıkış', 'is-meh');
+      if (grade === 'perfect') tag(t('hud.perfect'));
+      else if (grade === 'good') tag(t('hud.good'), 'is-meh');
     },
-    onHit({ kart, cause }) { if (isMe(kart) && cause === 'burnout') tag('Motor boğuldu!', 'is-meh', 1.5); },
+    onHit({ kart, cause }) { if (isMe(kart) && cause === 'burnout') tag(t('hud.burnout'), 'is-meh', 1.5); },
     onPlace({ kart, place: pl }) { if (isMe(kart) && pl !== shownPlace) setPlace(pl, game.karts?.length || shownTotal || 8, true); },
     onCheckpoint({ kart, split: sp }) {
       if (!isMe(kart) || typeof sp !== 'number') return;
@@ -473,8 +474,8 @@ export function createHUD(ctx) {
         shownLap = lapText;
         setLt(lapLt, lapText, 'label');
       }
-      const t = p.finished ? (p.finishTime || 0) : (race.state === 'countdown' || game.phase === 'countdown' ? 0 : (game.raceTime || 0));
-      clock.set(fmtTime(t));
+      const clockTime = p.finished ? (p.finishTime || 0) : (race.state === 'countdown' || game.phase === 'countdown' ? 0 : (game.raceTime || 0));
+      clock.set(fmtTime(clockTime));
       const total = game.karts?.length || 8;
       if (p.place && (p.place !== shownPlace || total !== shownTotal)) setPlace(p.place, total, false);
       updateSlot(p, dt);
@@ -485,7 +486,7 @@ export function createHUD(ctx) {
       const waiting = game.phase === 'finishing' && typeof race.waitLeft === 'number' && race.waitLeft > 0;
       if (waiting) {
         if (!waitEl) { waitEl = h('div', { class: 'kk-wait' }); center.appendChild(waitEl); }
-        waitEl.textContent = `Diğer sürücüler bekleniyor · ${Math.ceil(race.waitLeft)} sn`;
+        waitEl.textContent = t('hud.waiting', { time: tn('unit.seconds', Math.ceil(race.waitLeft)) });
       } else if (waitEl) { waitEl.remove(); waitEl = null; }
     },
   };

@@ -1,5 +1,6 @@
 // Small DOM helpers shared by the UI modules.
 import { letteringElement, drawLettering } from './lettering.js';
+import { upper, decimalSep } from '../i18n/i18n.js';
 
 // Display type (ARCHITECTURE.md §13): headings, numerals and banners are cut-paper lettering; body text
 // stays in config.fonts.body. Colours are CSS variables of the overlay root, so one palette drives both.
@@ -58,9 +59,9 @@ export function clear(el) {
   return el;
 }
 
-// Player-facing case changes must be Turkish-aware (i → İ, ı → I).
-export const up = (s) => String(s).toLocaleUpperCase('tr');
-export const cap = (s) => (s ? String(s)[0].toLocaleUpperCase('tr') + String(s).slice(1) : '');
+// Player-facing case changes follow the UI language (Turkish: i → İ, ı → I; English: plain).
+export const up = (s) => upper(s);
+export const cap = (s) => (s ? upper(String(s)[0]) + String(s).slice(1) : '');
 
 // Deterministic small tilts so cards look hand-placed but never jitter between renders.
 const TILTS = [-1.4, 0.8, -0.5, 1.2, -0.9, 0.4, -1.1, 0.7];
@@ -89,18 +90,18 @@ export function deckle(seed, amp = 3.2, step = 1.6) {
   return `polygon(${p.join(',')})`;
 }
 
-// m:ss,cc — Turkish uses the decimal comma.
+// m:ss,cc — the decimal separator follows the language (Turkish comma, English point).
 export function fmtTime(t) {
   if (!(t >= 0) || !isFinite(t)) t = 0;
   const m = Math.floor(t / 60);
   const s = Math.floor(t % 60);
   const c = Math.floor((t * 100) % 100);
-  return `${m}:${String(s).padStart(2, '0')},${String(c).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}${decimalSep()}${String(c).padStart(2, '0')}`;
 }
 
 export function fmtSplit(s) {
   const sign = s < 0 ? '−' : '+';
-  return `${sign}${Math.abs(s).toFixed(2).replace('.', ',')}`;
+  return `${sign}${Math.abs(s).toFixed(2).replace('.', decimalSep())}`;
 }
 
 export function svg(markup, cls = '') {

@@ -181,7 +181,7 @@ ${dkFine}
 .kk-chtab.is-focus .kk-paper{background:var(--paper-hi)}
 .kk-chtab .kk-paper{padding:.8em 1.2em .85em 1.2em; display:flex; align-items:center; gap:1em; border-radius:.5em 0 0 .5em; clip-path:none}
 .kk-chtab .kk-num{font-size:2.2em; line-height:1; width:1.2em; text-align:center}
-.kk-chtab b{font-weight:800; font-size:1.15em; display:block}
+.kk-chtab b{font-weight:800; font-size:1.15em; display:block; max-width:7.4em}
 .kk-chtab small{font-weight:500; color:var(--ink2)}
 .kk-chapter{position:absolute; left:calc(3em + var(--sal)); bottom:calc(5.5em + var(--sab)); width:38em; max-width:calc(100% - 26em); rotate:1deg; pointer-events:none}
 .kk-chapter .kk-paper{padding:1.3em 1.6em 1.5em; display:grid; grid-template-columns:minmax(0,1fr) 9em; gap:1.2em; align-items:center}

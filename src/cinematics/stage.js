@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import { mulberry32 } from '../core/rng.js';
 import { createKartVisual, ROSTER } from '../characters/characters.js';
 import { CUP, TRACKS } from '../track/defs/index.js';
+import { t } from '../i18n/i18n.js';
 import { pageCanvas, paintCover, paintDisc, paintLeftPage, paintPages, paintRightPage, paintWood, toTexture } from './print.js';
 import {
   PieceBuilder, circlePts, createPopupBatch, flowerPts, rectPts, ridgePts, starPts,
@@ -174,7 +175,7 @@ export function createStage(game) {
 
   const chapterOf = (key) => {
     const d = TRACKS[key] || TRACKS[CUP[0]] || {};
-    return { key: d.id || key || 'meadow', chapter: d.chapter || 1, title: d.name || 'Papatya Çayırı' };
+    return { key: d.id || key || 'meadow', chapter: d.chapter || 1, title: d.name || t('track.meadow.name') };
   };
   let chapterKey = TRACKS[game.selection?.trackId] ? game.selection.trackId : CUP[0];
   const prints = paintPages({ halfDepth: BOOK.halfD, chapter: chapterOf(chapterKey) });

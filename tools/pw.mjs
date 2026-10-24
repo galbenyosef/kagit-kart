@@ -63,9 +63,11 @@ async function serveThreeOffline(ctx) {
   });
 }
 
-function withOffline(browser) {
+// Headless Chromium reports en-US, which would switch the game to English and break every Turkish
+// assertion in the scenarios and regressions: contexts are pinned to `locale` unless the caller names one.
+function withOffline(browser, locale) {
   const newContext = browser.newContext.bind(browser);
-  browser.newContext = async (opts) => { const ctx = await newContext(opts); await serveThreeOffline(ctx); return ctx; };
+  browser.newContext = async (opts) => { const ctx = await newContext({ locale, ...opts }); await serveThreeOffline(ctx); return ctx; };
   browser.newPage = async (opts) => {
     const ctx = await browser.newContext(opts);
     const page = await ctx.newPage();
@@ -78,7 +80,7 @@ function withOffline(browser) {
 // Returns { browser, mode: 'headless'|'headed-offscreen', flags, renderer }.
 export async function launch(options = {}) {
   const l = await launchRaw(options);
-  withOffline(l.browser);
+  withOffline(l.browser, options.locale || 'tr-TR');
   return l;
 }
 

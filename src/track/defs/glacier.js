@@ -1,4 +1,5 @@
 import { layout } from './_path.js';
+import { t } from '../../i18n/i18n.js';
 
 // Chapter 3 — the hardest: narrow, high, icy. Counter-clockwise. Lodge straight, the frozen
 // lake (ice, open water on the left), two switchbacks up the face (the first one's snowfield is
@@ -31,8 +32,8 @@ const P = layout({
 export default {
   id: 'glacier',
   chapter: 3,
-  name: 'Buzul Geçidi',
-  subtitle: 'Pembe gün doğumunda dağ geçidi',
+  name: t('track.glacier.name'),
+  subtitle: t('track.glacier.subtitle'),
   laps: 3,
   points: P.points,
   halfWidth: P.halfWidth,

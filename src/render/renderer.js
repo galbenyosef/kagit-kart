@@ -4,6 +4,7 @@
 // so renderer.info.render covers the shadow pass, the scene and the post quad together.
 import * as THREE from 'three';
 import { BOOK_THEME } from '../core/config.js';
+import { t } from '../i18n/i18n.js';
 
 const SKY_VERT = /* glsl */`
 varying vec3 vDir;
@@ -59,7 +60,7 @@ export function createRenderer(game, container) {
 
   const canvas = renderer.domElement;
   canvas.tabIndex = 0;
-  canvas.setAttribute('aria-label', 'Kâğıt Kart oyun alanı');
+  canvas.setAttribute('aria-label', t('canvas.label'));
   container.appendChild(canvas);
 
   // Count shadow-pass draw calls separately (the pass runs inside renderer.render()).

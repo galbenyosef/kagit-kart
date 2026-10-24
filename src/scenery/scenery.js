@@ -6,6 +6,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { createPopups } from './popup.js';
 import { Parts, mulberry32, hashString, mixHex, roundRectPts } from './kit.js';
 import * as lettering from '../ui/lettering.js';
+import { t, upper } from '../i18n/i18n.js';
 import * as meadow from './themes/meadow.js';
 import * as bosphorus from './themes/bosphorus.js';
 import * as glacier from './themes/glacier.js';
@@ -356,8 +357,8 @@ export function createScenery(game, def, track) {
     const accents = th.accents?.length ? th.accents : ['#e8534a'];
     let accent = accents[1] ?? accents[0];
     if (ratio(accent, card) < 2.2) accent = accents.reduce((best, c) => (ratio(c, card) > ratio(best, card) ? c : best));
-    const title = String(def.name || def.id).toLocaleUpperCase('tr');
-    const kicker = `${def.chapter ?? ''}. BÖLÜM`;
+    const title = upper(def.name || def.id);
+    const kicker = upper(t('chapter.ord', { n: def.chapter ?? '' }));
     let size = 150;
     if (typeof lettering.measureLettering === 'function') {
       const m = lettering.measureLettering(title, { size });

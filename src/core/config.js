@@ -259,6 +259,7 @@ export const config = {
     touchControls: 'auto',
     autoAccelerate: false,
     showFps: false,
+    lang: 'auto',
     seenTutorial: false,
     muted: false,
   },

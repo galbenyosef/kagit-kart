@@ -4,15 +4,19 @@ import { h, svg, lt } from './dom.js';
 import { sheet } from './menus.js';
 import { controlRows } from './forms.js';
 import { ROTATE_PHONE } from './icons.js';
+import { t } from '../i18n/i18n.js';
 
 const G = (a) => h('span', { 'data-glyph': a });
 
+// Each hint is one whole sentence per language; `{drift}` style tokens become glyph spans, so word order
+// (and the Turkish suffix after a glyph) stays the translator's.
+const sentence = (key) => t(key).split(/\{(\w+)\}/).map((part, i) => (i % 2 ? G(part) : part)).filter((part) => part !== '');
 const TEXT = {
-  corner: () => ['Drift: ', G('drift'), ' basılı tut + yön'],
-  tier: () => ['Kıvılcım çıktı: ', G('drift'), ' bırak → turbo'],
-  ramp: () => ['Rampanın ucunda drift\'e bas ', G('drift')],
-  item: () => [G('item'), ' ile kullan, ', G('brake'), ' + ', G('item'), ' geriye at'],
-  portrait: () => [svg(ROTATE_PHONE, 'kk-rot'), 'Yatay çevirirsen daha iyi'],
+  corner: () => sentence('hint.corner'),
+  tier: () => sentence('hint.tier'),
+  ramp: () => sentence('hint.ramp'),
+  item: () => sentence('hint.item'),
+  portrait: () => [svg(ROTATE_PHONE, 'kk-rot'), t('hint.portrait')],
 };
 
 export function createHints(ctx) {
@@ -58,8 +62,8 @@ export function createHints(ctx) {
     if (!want) { hw.remove(); hw = null; return; }
     hw = h('div', { class: 'kk-hw', 'data-kk-hint': 'hwaccel', role: 'note', onclick: closeHw }, h('div', { class: 'kk-hint-in' },
       sheet([
-        h('span', null, 'Tarayıcında donanım hızlandırma kapalı görünüyor. Açarsan oyun çok daha akıcı olur (Ayarlar › Sistem › Donanım hızlandırma).'),
-        h('button', { class: 'kk-hw-x', 'aria-label': 'Kapat', onclick: closeHw }, '×'),
+        h('span', null, t('hint.hw')),
+        h('button', { class: 'kk-hw-x', 'aria-label': t('hint.close'), onclick: closeHw }, '×'),
       ], { dk: 2 })));
     sysEl.appendChild(hw);
   }
@@ -91,9 +95,9 @@ export function createHints(ctx) {
     if (teach || game.settings?.seenTutorial) return;
     const dev = ctx.device();
     teach = h('div', { class: 'kk-teach kk-pop' }, sheet([
-      h('div', { class: 'kk-kicker' }, 'İLK YARIŞ'),
-      h('div', { class: 'kk-h' }, lt('Nasıl sürülür?')),
-      controlRows(dev, ['Direksiyon', 'Gaz', 'Drift · zıpla', 'Eşya'])], { dk: 3 }));
+      h('div', { class: 'kk-kicker' }, t('teach.kicker')),
+      h('div', { class: 'kk-h' }, lt(t('teach.title'))),
+      controlRows(dev, ['steer', 'gas', 'drift', 'item'])], { dk: 3 }));
     el.appendChild(teach);
     teachLeft = 7;
   }

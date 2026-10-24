@@ -4,11 +4,14 @@ import { FocusList } from './nav.js';
 import { portrait } from './icons.js';
 import { sheet } from './menus.js';
 import { createSettingsForm, createControlsForm } from './forms.js';
+import { t, tn, ordinal } from '../i18n/i18n.js';
+
+const chapterLabel = (def) => (def.chapter == null ? t('chapter.word') : t('chapter.n', { n: def.chapter }));
 
 // Podium places in their print colours, everyone else in ink.
 const PLACE_FILL = { 1: 'var(--p1)', 2: 'var(--p2)', 3: 'var(--p3)' };
 export function placeLt(n, preset = 'num') {
-  return lt(`${n}.`, preset, { colors: { fill: PLACE_FILL[n] || 'var(--ink)' } });
+  return lt(ordinal(n), preset, { colors: { fill: PLACE_FILL[n] || 'var(--ink)' } });
 }
 
 function button(ctx, label, { primary = false, glyph = null, dk = 4, rot = 0 } = {}) {
@@ -34,12 +37,12 @@ export function createPause(ctx) {
     const gp = !!game.gp?.active;
     const note = h('div', { class: 'kk-note' });
     const rows = [
-      ['Devam', 'I', resume],
-      ['Yeniden başla', 'II', () => ctx.api('restartRace')],
-      ['Ayarlar', 'III', () => showSub('settings')],
-      ['Kontroller', 'IV', () => showSub('controls')],
-      ['Menüye dön', 'V', () => {
-        if (gp && !quitArmed) { quitArmed = true; note.textContent = 'Kupa ilerlemen silinecek. Emin misin? Tekrar seç.'; return; }
+      [t('pause.resume'), 'I', resume],
+      [t('pause.restart'), 'II', () => ctx.api('restartRace')],
+      [t('menu.settings'), 'III', () => showSub('settings')],
+      [t('menu.controls'), 'IV', () => showSub('controls')],
+      [t('pause.quit'), 'V', () => {
+        if (gp && !quitArmed) { quitArmed = true; note.textContent = t('pause.quitConfirm'); return; }
         ctx.api('quitToTitle');
       }],
     ];
@@ -50,10 +53,10 @@ export function createPause(ctx) {
       toc.appendChild(r);
       return { el: r, confirm: fn, onFocus: (it, i) => { if (i !== 4 && quitArmed) { quitArmed = false; note.textContent = gpNote(); } } };
     });
-    const gpNote = () => (gp ? 'Grand Prix: yeniden başlarsan bu yarış puan vermez.' : '');
+    const gpNote = () => (gp ? t('pause.gpNote') : '');
     note.textContent = gpNote();
     page = h('div', { class: 'kk-pause kk-pop' }, sheet([
-      h('div', { class: 'kk-kicker' }, up('Mola')), h('div', { class: 'kk-h' }, lt('Duraklatıldı')), toc, note], { dk: 2 }));
+      h('div', { class: 'kk-kicker' }, up(t('pause.kicker'))), h('div', { class: 'kk-h' }, lt(t('pause.title'))), toc, note], { dk: 2 }));
     el.appendChild(page);
     // Core only opens the pause (and uses up that Esc); closing it is ours: back or pause at the root resumes.
     focus = new FocusList(ctx, { onBack: resume });
@@ -64,11 +67,11 @@ export function createPause(ctx) {
   function showSub(kind) {
     cleanup();
     const back = () => showRoot(kind === 'settings' ? 2 : 3);
-    form = kind === 'settings' ? createSettingsForm(ctx, { onBack: back }) : createControlsForm(ctx, { onBack: back });
-    const backBtn = button(ctx, 'Geri', { glyph: 'back', dk: 3 });
+    form = kind === 'settings' ? createSettingsForm(ctx, { onBack: back, pause: true }) : createControlsForm(ctx, { onBack: back });
+    const backBtn = button(ctx, t('nav.back'), { glyph: 'back', dk: 3 });
     backBtn.addEventListener('click', (e) => { if (e.detail !== 0) { ctx.click(); back(); } });
     page = h('div', { class: 'kk-form kk-pop' }, sheet([
-      h('div', { class: 'kk-h' }, lt(kind === 'settings' ? 'Ayarlar' : 'Kontroller')), form.el,
+      h('div', { class: 'kk-h' }, lt(t(kind === 'settings' ? 'menu.settings' : 'menu.controls'))), form.el,
       h('div', { class: 'kk-actions' }, backBtn)], { dk: 1 }));
     el.appendChild(page);
     focus = form.focus;
@@ -141,21 +144,21 @@ export function createResults(ctx) {
     const bestLap = laps.length ? Math.min(...laps) : null;
     const def = game.trackDef || game.track?.def || {};
     const table = h('div', { class: 'kk-table kk-rows-in' });
-    table.appendChild(h('div', { class: 'kk-tr kk-th' }, h('span', null, up('Tur')), h('span'), h('span'),
-      h('span', { style: { textAlign: 'right' } }, up('Süre')), h('span'), h('span')));
-    laps.forEach((t, i) => table.appendChild(rowAnim(h('div', { class: 'kk-tr' },
-      h('span', { class: 'kk-pl' }, lt(`${i + 1}.`, 'num')), h('span'), h('span', { class: 'kk-nm' }, 'tur'),
-      h('span', { class: 'kk-t' }, ctx.fmt(t)), t === bestLap ? h('span', { class: 'kk-tag' }, up('En iyi')) : h('span'), h('span')), i)));
+    table.appendChild(h('div', { class: 'kk-tr kk-th' }, h('span', null, up(t('results.lap'))), h('span'), h('span'),
+      h('span', { style: { textAlign: 'right' } }, up(t('results.time'))), h('span'), h('span')));
+    laps.forEach((lapTime, i) => table.appendChild(rowAnim(h('div', { class: 'kk-tr' },
+      h('span', { class: 'kk-pl' }, lt(ordinal(i + 1), 'num')), h('span'), h('span', { class: 'kk-nm' }, t('results.lapRow')),
+      h('span', { class: 'kk-t' }, ctx.fmt(lapTime)), lapTime === bestLap ? h('span', { class: 'kk-tag' }, up(t('results.best'))) : h('span'), h('span')), i)));
     const total = p?.finishTime ?? game.race?.results?.[0]?.time;
     table.appendChild(rowAnim(h('div', { class: 'kk-tr is-total is-me' },
-      h('span'), svg(portrait(charOf(playerId()))), h('span', { class: 'kk-nm' }, 'Toplam'),
+      h('span'), svg(portrait(charOf(playerId()))), h('span', { class: 'kk-nm' }, t('results.total')),
       h('span', { class: 'kk-t' }, ctx.fmt(total)), h('span'), h('span')), laps.length));
     // Core writes the new best before the UI draws results, so equality means this run set it.
     const best = ctx.best(def.id);
     const record = best?.race != null && total != null && Math.abs(best.race - total) < 1e-3;
-    board({ kicker: `Bölüm ${def.chapter ?? ''} · Zamana Karşı`, title: def.name || 'Zamana Karşı', table,
-      actions: [['Tekrar dene', () => ctx.api('restartRace'), true], ['Menüye dön', () => ctx.api('quitToTitle')]] });
-    if (record) el.querySelector('.kk-board .kk-paper')?.appendChild(h('div', { class: 'kk-rekor' }, lt('Yeni rekor!', 'stamp', { colors: { ink: 'var(--red)' } })));
+    board({ kicker: t('results.kicker', { chapter: chapterLabel(def), what: t('mode.tt.title') }), title: def.name || t('mode.tt.title'), table,
+      actions: [[t('results.retry'), () => ctx.api('restartRace'), true], [t('pause.quit'), () => ctx.api('quitToTitle')]] });
+    if (record) el.querySelector('.kk-board .kk-paper')?.appendChild(h('div', { class: 'kk-rekor' }, lt(t('results.record'), 'stamp', { colors: { ink: 'var(--red)' } })));
   }
 
   function showResults() {
@@ -168,9 +171,9 @@ export function createResults(ctx) {
     const def = game.trackDef || game.track?.def || {};
     const me = playerId();
     const table = h('div', { class: 'kk-table kk-rows-in' });
-    table.appendChild(h('div', { class: 'kk-tr kk-th' }, h('span', null, up('Sıra')), h('span'), h('span', null, up('Sürücü')),
-      h('span', { style: { textAlign: 'right' } }, up('Süre')), h('span', { style: { textAlign: 'right' } }, up('En iyi tur')),
-      h('span', { style: { textAlign: 'right' } }, gp ? up('Puan') : '')));
+    table.appendChild(h('div', { class: 'kk-tr kk-th' }, h('span', null, up(t('results.place'))), h('span'), h('span', null, up(t('results.driver'))),
+      h('span', { style: { textAlign: 'right' } }, up(t('results.time'))), h('span', { style: { textAlign: 'right' } }, up(t('results.bestLap'))),
+      h('span', { style: { textAlign: 'right' } }, gp ? up(t('results.points')) : '')));
     results.forEach((r, i) => {
       const c = charOf(r.characterId || r.kartId);
       const p = r.place;
@@ -183,10 +186,10 @@ export function createResults(ctx) {
         h('span', { class: 'kk-pts' }, gp ? [lt(String(r.totalPoints ?? 0), 'num'), r.points ? h('span', { class: 'kk-plus' }, `+${r.points}`) : null] : '')), i));
     });
     const actions = gp
-      ? [['Puan tablosu', showStandings, true], ['Menüye dön', () => ctx.api('quitToTitle')]]
-      : [[tt ? 'Tekrar dene' : 'Tekrar yarış', () => ctx.api('restartRace'), true], ['Menüye dön', () => ctx.api('quitToTitle')]];
-    const kicker = `Bölüm ${def.chapter ?? ''} · ${tt ? 'Zamana Karşı' : 'Sonuçlar'}`;
-    board({ kicker, title: def.name || 'Sonuçlar', table, actions });
+      ? [[t('results.standingsBtn'), showStandings, true], [t('pause.quit'), () => ctx.api('quitToTitle')]]
+      : [[t(tt ? 'results.retry' : 'results.again'), () => ctx.api('restartRace'), true], [t('pause.quit'), () => ctx.api('quitToTitle')]];
+    const kicker = t('results.kicker', { chapter: chapterLabel(def), what: t(tt ? 'mode.tt.title' : 'results.title') });
+    board({ kicker, title: def.name || t('results.title'), table, actions });
   }
 
   function showStandings() {
@@ -199,8 +202,8 @@ export function createResults(ctx) {
     const prevOrder = prev ? Object.keys(prev).sort((a, b) => prev[b] - prev[a]) : null;
     const me = playerId();
     const table = h('div', { class: 'kk-table kk-rows-in' });
-    table.appendChild(h('div', { class: 'kk-tr kk-th' }, h('span', null, up('Sıra')), h('span'), h('span', null, up('Sürücü')), h('span'),
-      h('span', { style: { textAlign: 'right' } }, up('Puan')), h('span')));
+    table.appendChild(h('div', { class: 'kk-tr kk-th' }, h('span', null, up(t('results.place'))), h('span'), h('span', null, up(t('results.driver'))), h('span'),
+      h('span', { style: { textAlign: 'right' } }, up(t('results.points'))), h('span')));
     order.forEach((id, i) => {
       const c = charOf(id);
       const color = c.colors?.body || '#2d2a32';
@@ -224,10 +227,10 @@ export function createResults(ctx) {
     const nextId = gp.cup?.[idx + 1];
     const nextName = nextId ? (ctx.tracks()[nextId]?.name || nextId) : '';
     const actions = [
-      [last ? 'Ödül törenine geç' : `Sonraki bölüm: ${nextName}`, () => ctx.api('nextRace'), true],
-      ['Menüye dön', () => ctx.api('quitToTitle')],
+      [last ? t('standings.toPodium') : t('standings.next', { name: nextName }), () => ctx.api('nextRace'), true],
+      [t('pause.quit'), () => ctx.api('quitToTitle')],
     ];
-    board({ kicker: `GRAND PRIX · ${idx + 1}/${total} bölüm sonrası`, title: 'Kupa sıralaması', table, actions, cls: 'kk-std' });
+    board({ kicker: t('standings.kicker', { i: idx + 1, n: total }), title: t('standings.title'), table, actions, cls: 'kk-std' });
   }
 
   return {
@@ -255,19 +258,19 @@ export function createPodium(ctx) {
     const st = game.gp?.standings || {};
     const me = game.player?.id || game.selection?.characterId;
     const myPlace = order.indexOf(me) + 1;
-    const head = myPlace === 1 ? 'Kupa senin!' : myPlace > 0 && myPlace <= 3 ? 'Podyumdasın!' : 'Kupa tamamlandı';
+    const head = t(myPlace === 1 ? 'podium.win' : myPlace > 0 && myPlace <= 3 ? 'podium.top3' : 'podium.done');
     el.appendChild(h('div', { class: 'kk-podium-head kk-pop' }, sheet([
-      h('div', { class: 'kk-kicker' }, up('Son bölüm · ödül töreni')), h('div', { class: 'kk-h' }, lt(head, 'head', { colors: { plate: 'var(--mustard)' } })),
-      myPlace > 3 ? h('div', { class: 'kk-animal' }, `Sen ${myPlace}. oldun · ${st[me] || 0} puan`) : null], { dk: 2 })));
+      h('div', { class: 'kk-kicker' }, up(t('podium.kicker'))), h('div', { class: 'kk-h' }, lt(head, 'head', { colors: { plate: 'var(--mustard)' } })),
+      myPlace > 3 ? h('div', { class: 'kk-animal' }, t('podium.you', { place: ordinal(myPlace), points: tn('unit.points', st[me] || 0) })) : null], { dk: 2 })));
     const caps = h('div', { class: 'kk-podium' });
     order.slice(0, 3).forEach((id, i) => {
       const c = ctx.roster().find((r) => r.id === id) || { id, name: id };
       const cap = h('div', { class: `kk-cap c${i + 1} kk-pop`, style: { animationDelay: `${400 + (2 - i) * 250}ms` } }, sheet([
-        h('div', { class: 'kk-pl' }, placeLt(i + 1, 'card')), h('div', null, h('b', null, c.name || id), h('span', null, `${st[id] || 0} puan`))], { dk: i + 1 }));
+        h('div', { class: 'kk-pl' }, placeLt(i + 1, 'card')), h('div', null, h('b', null, c.name || id), h('span', null, tn('unit.points', st[id] || 0)))], { dk: i + 1 }));
       caps.appendChild(cap);
     });
     el.appendChild(caps);
-    const go = button(ctx, 'Menüye dön', { primary: true, glyph: 'confirm', dk: 4, rot: -1 });
+    const go = button(ctx, t('pause.quit'), { primary: true, glyph: 'confirm', dk: 4, rot: -1 });
     el.appendChild(h('div', { class: 'kk-podium-go kk-pop', style: { animationDelay: '1.4s' } }, go));
     focus?.release();
     focus = new FocusList(ctx);

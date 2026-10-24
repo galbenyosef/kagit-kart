@@ -8,6 +8,7 @@
 //
 // Canvas output goes through a per-letter sprite cache (a HUD redraw is a few drawImage calls);
 // DOM output is one inline SVG sized in em.
+import { upper } from '../i18n/i18n.js';
 
 const EM = 1000;
 const CAP = 700;
@@ -483,7 +484,7 @@ function specklesOf(inst) {
 const layouts = new Map();
 
 function toChars(text) {
-  const s = String(text ?? '').normalize('NFC').toLocaleUpperCase('tr');
+  const s = upper(String(text ?? '').normalize('NFC'));
   const chars = [];
   for (let ch of s) {
     ch = ALIAS[ch] ?? ch;

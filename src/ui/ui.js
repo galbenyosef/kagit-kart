@@ -10,11 +10,12 @@ import { createHUD } from './hud.js';
 import { createPause, createResults, createPodium } from './panels.js';
 import { createTouch } from './touch.js';
 import { createHints } from './hints.js';
+import { t, lang } from '../i18n/i18n.js';
 
 const GLYPHS = {
   keyboard: { confirm: 'Enter', back: 'Esc', drift: 'Space', item: 'X', brake: '↓', pause: 'Esc' },
   gamepad: { confirm: 'A', back: 'B', drift: 'RB', item: 'X', brake: 'B', pause: 'Start' },
-  touch: { confirm: null, back: null, drift: 'DRIFT', item: 'EŞYA', brake: 'FREN', pause: '❚❚' },
+  touch: { confirm: null, back: null, drift: t('touch.drift'), item: t('touch.item'), brake: t('touch.brake'), pause: '❚❚' },
 };
 const NO_NAV = { up: false, down: false, left: false, right: false, confirm: false, back: false, pause: false };
 
@@ -26,7 +27,7 @@ export function createUI(game) {
   document.head.appendChild(style);
 
   const host = document.getElementById('kk-root') || document.body;
-  const root = h('div', { class: 'kk-ui', lang: 'tr' });
+  const root = h('div', { class: 'kk-ui', lang: lang() });
   host.appendChild(root);
 
   let prevStandings = null;
@@ -98,7 +99,7 @@ export function createUI(game) {
   let fpsT0 = 0, fpsFrames = 0;
   // Audio unlocks only on a key, click or tap (§2); a gamepad press is not a user gesture in Chrome, so a
   // pad-only player can reach the menus or a race in silence. After a second of that, ask once, quietly.
-  const soundEl = h('div', { class: 'kk-sound', role: 'status' }, svg(SPEAKER), 'Ses için bir tuşa bas ya da dokun');
+  const soundEl = h('div', { class: 'kk-sound', role: 'status' }, svg(SPEAKER), t('ui.sound'));
   soundEl.hidden = true;
   const canSound = !!(window.AudioContext || window.webkitAudioContext);
   let lockedFor = 0;

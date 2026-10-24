@@ -2,6 +2,7 @@
 // pointerId with pointer capture so a thumb sliding off a button still releases it.
 import { h, svg } from './dom.js';
 import { PAUSE_GLYPH } from './icons.js';
+import { t } from '../i18n/i18n.js';
 
 const DRIFT_ART = '<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="#2d2a32" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 44q14-28 40-24"/><path d="M42 12l10 8-9 10"/></g></svg>';
 
@@ -95,11 +96,11 @@ export function createTouch(ctx) {
     return { el: b, reset() { ids.clear(); b.classList.remove('is-down'); } };
   }
 
-  const gas = button('kk-tgas', 'GAZ', (on) => { state.throttle = on ? 1 : 0; });
-  const drift = button('kk-tdrift', [svg(DRIFT_ART), 'DRIFT'], (on) => { state.drift = on; });
-  const item = button('kk-titem', 'EŞYA', (on) => { state.item = on; });
-  const brake = button('kk-tbrake', 'FREN', (on) => { state.brake = on ? 1 : 0; });
-  const look = button('kk-tlook', h('small', null, 'GERİ BAK'), (on) => { state.lookBack = on; });
+  const gas = button('kk-tgas', t('touch.gas'), (on) => { state.throttle = on ? 1 : 0; });
+  const drift = button('kk-tdrift', [svg(DRIFT_ART), t('touch.drift')], (on) => { state.drift = on; });
+  const item = button('kk-titem', t('touch.item'), (on) => { state.item = on; });
+  const brake = button('kk-tbrake', t('touch.brake'), (on) => { state.brake = on ? 1 : 0; });
+  const look = button('kk-tlook', h('small', null, t('touch.look')), (on) => { state.lookBack = on; });
   const buttons = [gas, drift, item, brake, look];
 
   const auto = h('div', { class: 'kk-tbtn kk-tauto' });
@@ -118,7 +119,7 @@ export function createTouch(ctx) {
 
   function refresh() {
     const on = !!game.settings?.autoAccelerate;
-    auto.replaceChildren(h('small', null, on ? 'OTO GAZ: AÇIK' : 'OTO GAZ: KAPALI'));
+    auto.replaceChildren(h('small', null, t(on ? 'touch.autoOn' : 'touch.autoOff')));
     auto.classList.toggle('is-armed', on);
     gas.el.classList.toggle('is-auto', on);
   }

@@ -1,4 +1,5 @@
 import { layout } from './_path.js';
+import { t } from '../../i18n/i18n.js';
 
 // Chapter 2 — a paper İstanbul at blue hour. Figure-8 with one crossing: the European shore
 // road runs north under the suspension bridge, curls left up the hill and crosses over itself
@@ -32,8 +33,8 @@ const P = layout({
 export default {
   id: 'bosphorus',
   chapter: 2,
-  name: 'Boğaz Gecesi',
-  subtitle: 'Mavi saatten geceye, iki köprü',
+  name: t('track.bosphorus.name'),
+  subtitle: t('track.bosphorus.subtitle'),
   laps: 3,
   points: P.points,
   halfWidth: P.halfWidth,

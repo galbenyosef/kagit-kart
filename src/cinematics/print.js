@@ -3,11 +3,22 @@
 // slightly off register against the ink key plate, halftone screens, text set as grey word bars.
 import * as THREE from 'three';
 import { mulberry32 } from '../core/rng.js';
-import { drawLettering } from '../ui/lettering.js';
+import { drawLettering, measureLettering } from '../ui/lettering.js';
+import { t } from '../i18n/i18n.js';
 
 export const INK = '#2d2a32';
 export const PAPER = '#f4ecd8';
 const PX_PER_M = 1024 / 12; // page prints: 12 m of page per 1024 px
+
+// Widest chapter heading / turn label before it shrinks (the longest Turkish heading is 520 px at size 62).
+const HEAD_MAX_W = 620;
+const TURN_MAX_W = 140;
+
+// Lettering size that keeps `text` within maxW (longer English lines shrink instead of running off the page).
+function fitSize(text, size, maxW, opts = {}) {
+  const w = measureLettering(text, { ...opts, size }).width;
+  return w > maxW ? size * (maxW / w) : size;
+}
 
 function canvas(w, h) {
   const c = document.createElement('canvas');
@@ -436,12 +447,14 @@ export function paintRightPage(c, chapter, halfDepth, seed = 7) {
     g.fill();
     g.restore();
     const [tx, ty] = P(9.2, 4.55);
-    drawLettering(g, 'Çevir', { x: tx, y: ty, size: 34, style: 'label', align: 'center', colors: { fill: '#d9483b', shadow: 'rgba(45,42,50,0.3)' }, seed: 9 });
+    const turn = t('print.turn');
+    drawLettering(g, turn, { x: tx, y: ty, size: fitSize(turn, 34, TURN_MAX_W, { style: 'label' }), style: 'label', align: 'center', colors: { fill: '#d9483b', shadow: 'rgba(45,42,50,0.3)' }, seed: 9 });
 
     // chapter heading and the story column at the front, where the reader looks first
     const [hx, hy] = P(1.5, 5.35);
-    drawLettering(g, `${chapter.chapter}. Bölüm`, { x: hx, y: hy - 58, size: 28, style: 'label', colors: { fill: '#d9483b', shadow: 'rgba(45,42,50,0.35)' }, seed: 3 });
-    drawLettering(g, chapter.title, { x: hx, y: hy + 4, size: 62, style: 'cut', seed: 11 + chapter.chapter,
+    const kicker = t('chapter.ord', { n: chapter.chapter });
+    drawLettering(g, kicker, { x: hx, y: hy - 58, size: fitSize(kicker, 28, HEAD_MAX_W, { style: 'label' }), style: 'label', colors: { fill: '#d9483b', shadow: 'rgba(45,42,50,0.35)' }, seed: 3 });
+    drawLettering(g, chapter.title, { x: hx, y: hy + 4, size: fitSize(chapter.title, 62, HEAD_MAX_W, { style: 'cut', seed: 11 + chapter.chapter }), style: 'cut', seed: 11 + chapter.chapter,
       colors: { fill: look.title, shadow: INK } });
     textBlock(g, 70, P(0, 6.1)[1], 560, 5, rand, { lineH: 24 });
     for (let i = 0; i < 7; i++) {
@@ -764,7 +777,7 @@ export function paintCover(aspect, seed = 17) {
   g.restore();
 
   const cx = (fx0 + fx1) / 2;
-  goldText(g, 'AÇILIR KİTAP YARIŞI', cx, H * 0.125, 34, 11);
+  goldText(g, t('cover.tagline'), cx, H * 0.125, 34, 11);
   goldRule(g, cx, H * 0.155, W * 0.42);
   const fills = ['#f2c14e', '#d9483b', '#8fb3d9', '#e56b6f', '#faf4e4', '#9cc56b', '#f2c14e', '#d9483b', '#8fb3d9'];
   drawLettering(g, 'Kâğıt', { x: cx, y: H * 0.37, size: 214, style: 'cut', align: 'center', seed: 7,
@@ -773,7 +786,7 @@ export function paintCover(aspect, seed = 17) {
     colors: { fill: fills.slice(5), shadow: '#10232a' } });
   goldRule(g, cx, H * 0.595, W * 0.5);
   kartCollage(g, cx + 20, H * 0.775, 1.12);
-  goldText(g, '4 BÖLÜM · 8 SÜRÜCÜ', cx, H * 0.915, 26, 8);
+  goldText(g, t('cover.sub'), cx, H * 0.915, 26, 8);
   return c;
 }
 

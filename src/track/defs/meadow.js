@@ -1,4 +1,5 @@
 import { layout } from './_path.js';
+import { t } from '../../i18n/i18n.js';
 
 // Chapter 1 — wide, friendly, the tutorial. Clockwise.
 const P = layout({
@@ -32,8 +33,8 @@ const P = layout({
 export default {
   id: 'meadow',
   chapter: 1,
-  name: 'Papatya Çayırı',
-  subtitle: 'Bahar sabahı, rüzgârgülleri ve dere',
+  name: t('track.meadow.name'),
+  subtitle: t('track.meadow.subtitle'),
   laps: 3,
   points: P.points,
   halfWidth: P.halfWidth,

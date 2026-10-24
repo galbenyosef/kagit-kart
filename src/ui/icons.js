@@ -1,5 +1,6 @@
 // Inline-SVG artwork. Every drawing is "printed": flat colour plates offset a little from the ink
 // linework, like a two-pass print slightly out of register.
+import { t } from '../i18n/i18n.js';
 
 const INK = '#2d2a32';
 const PAPER = '#fbf6e9';
@@ -32,11 +33,11 @@ const fountainPen = (t = '') => [
 
 export const ITEMS = {
   rocket: {
-    name: 'Roket Kalem',
+    name: t('item.rocket.name'),
     svg: printed(fountainPen(), '', { rot: 45 }),
   },
   rocket3: {
-    name: 'Üçlü Roket',
+    name: t('item.rocket3.name'),
     svg: printed([
       ...fountainPen('translate(-6 10) scale(.62) rotate(-18 32 32)'),
       ...fountainPen('translate(26 10) scale(.62) rotate(18 32 32)'),
@@ -44,7 +45,7 @@ export const ITEMS = {
     ], '', { rot: 30, sw: 2.2 }),
   },
   gum: {
-    name: 'Sakız',
+    name: t('item.gum.name'),
     svg: printed([
       { d: 'M8 46L30 38L36 54L14 62Z', fill: '#6c8ead' },
       { d: 'M13 48L31 42', fill: 'none', line: true },
@@ -53,14 +54,14 @@ export const ITEMS = {
     ], '<path d="M28 18q4-5 10-5" stroke="#fbf6e9" stroke-width="3.2"/>'),
   },
   plane: {
-    name: 'Kâğıt Uçak',
+    name: t('item.plane.name'),
     svg: printed([
       { d: 'M5 33L59 11L30 53L26 38Z', fill: PAPER },
       { d: 'M26 38L30 53L19 43Z', fill: '#d8ccaa' },
     ], '<path d="M26 38L59 11"/>'),
   },
   homing: {
-    name: 'Güdümlü Uçak',
+    name: t('item.homing.name'),
     svg: printed([
       { d: ring(18, 18, 13, 7), fill: '#f2c14e', rule: 'evenodd' },
       { d: 'M9 37L61 15L33 57L29 42Z', fill: '#e56b6f' },
@@ -68,7 +69,7 @@ export const ITEMS = {
     ], '<path d="M29 42L61 15M18 2v6M18 28v6M2 18h6M28 18h6" />'),
   },
   ink: {
-    name: 'Mürekkep',
+    name: t('item.ink.name'),
     svg: printed([
       { d: 'M17 30Q17 25 22 25H42Q47 25 47 30V55Q47 60 42 60H22Q17 60 17 55Z', fill: '#34467a' },
       { d: 'M26 15H38V25H26Z', fill: '#4d6099' },
@@ -78,14 +79,14 @@ export const ITEMS = {
     ], '<path d="M26 43h12"/>'),
   },
   foil: {
-    name: 'Yaldız',
+    name: t('item.foil.name'),
     svg: printed([
       { d: 'M32 4L39 23L59 24L43 36L49 56L32 44L15 56L21 36L5 24L25 23Z', fill: '#e0b64a' },
       { d: 'M32 17L35 29L46 30L37 35', fill: '#f5dc8c', line: false },
     ], '<path d="M32 18v14l-9 6M32 32l10 5"/><path d="M52 6l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fbf6e9"/>'),
   },
   scissors: {
-    name: 'Makas',
+    name: t('item.scissors.name'),
     svg: printed([
       { d: 'M30 37L13 5Q22 8 37 31Z', fill: '#cfd3da' },
       { d: 'M34 37L51 5Q42 8 27 31Z', fill: '#cfd3da' },

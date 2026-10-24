@@ -1,4 +1,5 @@
 import { layout } from './_path.js';
+import { t } from '../../i18n/i18n.js';
 
 // Chapter 4 — the finale leaves the book. The grid sits on the open page (y 6); the road runs
 // out along a ruler laid from the book to a notebook stack, curls down onto the desk round the
@@ -40,8 +41,8 @@ const P = layout({
 export default {
   id: 'desk',
   chapter: 4,
-  name: 'Yazı Masası',
-  subtitle: 'Kitaptan çıkıp okurun masasına',
+  name: t('track.desk.name'),
+  subtitle: t('track.desk.subtitle'),
   laps: 3,
   points: P.points,
   halfWidth: P.halfWidth,

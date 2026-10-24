@@ -1,24 +1,29 @@
 // Settings and Controls pages. Shared by the main menu and the pause menu.
 import { h, svg, clear } from './dom.js';
 import { FocusList } from './nav.js';
+import { t } from '../i18n/i18n.js';
 
 const PENCIL_CIRCLE = `<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M9 25C5 9 88 2 95 17C99 31 24 39 7 27C2 19 30 5 66 7" fill="none" stroke="#d9483b" stroke-width="2.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
 
-const ON_OFF = [[true, 'Açık'], [false, 'Kapalı']];
+const ON_OFF = [[true, t('set.on')], [false, t('set.off')]];
+const AUTO_ON_OFF = [['auto', t('set.auto')], ['on', t('set.on')], ['off', t('set.off')]];
 
 export const SETTING_ROWS = [
-  { key: 'musicVolume', label: 'Müzik', type: 'range' },
-  { key: 'sfxVolume', label: 'Efektler', type: 'range' },
-  { key: 'muted', label: 'Ses', type: 'mute', options: [[false, 'Açık'], [true, 'Kapalı']] },
-  { key: 'quality', label: 'Görüntü', options: [['auto', 'Otomatik'], ['high', 'Yüksek'], ['medium', 'Orta'], ['low', 'Düşük'], ['minimal', 'En düşük']] },
-  { key: 'reducedMotion', label: 'Hareketi azalt', options: [['auto', 'Sistem'], ['on', 'Açık'], ['off', 'Kapalı']] },
-  { key: 'cameraShake', label: 'Kamera sarsıntısı', options: ON_OFF },
-  { key: 'touchControls', label: 'Dokunmatik tuşlar', options: [['auto', 'Otomatik'], ['on', 'Açık'], ['off', 'Kapalı']] },
-  { key: 'autoAccelerate', label: 'Otomatik gaz', options: ON_OFF },
-  { key: 'showFps', label: 'FPS göster', options: ON_OFF },
+  { key: 'musicVolume', label: t('set.music'), type: 'range' },
+  { key: 'sfxVolume', label: t('set.sfx'), type: 'range' },
+  { key: 'muted', label: t('set.sound'), type: 'mute', options: [[false, t('set.on')], [true, t('set.off')]] },
+  { key: 'quality', label: t('set.quality'), options: [['auto', t('set.auto')], ['high', t('set.quality.high')], ['medium', t('set.quality.medium')], ['low', t('set.quality.low')], ['minimal', t('set.quality.minimal')]] },
+  { key: 'reducedMotion', label: t('set.reducedMotion'), options: [['auto', t('set.system')], ['on', t('set.on')], ['off', t('set.off')]] },
+  { key: 'cameraShake', label: t('set.cameraShake'), options: ON_OFF },
+  { key: 'touchControls', label: t('set.touchControls'), options: AUTO_ON_OFF },
+  { key: 'autoAccelerate', label: t('set.autoAccelerate'), options: ON_OFF },
+  { key: 'showFps', label: t('set.showFps'), options: ON_OFF },
+  // Changing it reloads the page, so it is offered on the title menus only (never mid-race).
+  { key: 'lang', label: t('set.lang'), menuOnly: true, options: [['auto', t('set.lang.auto')], ['tr', t('set.lang.tr')], ['en', t('set.lang.en')]] },
 ];
 
-export function createSettingsForm(ctx, { onBack }) {
+// pause: the pause menu's copy leaves out rows that need a reload (language).
+export function createSettingsForm(ctx, { onBack, pause = false }) {
   const { game } = ctx;
   const rowsEl = h('div', { class: 'kk-rows' });
   const focus = new FocusList(ctx, { onBack });
@@ -31,12 +36,20 @@ export function createSettingsForm(ctx, { onBack }) {
       if (!!value('muted') !== v) ctx.api('toggleMute');
     } else {
       ctx.api('setSetting', row.key, v);
+      if (row.key === 'lang') reloadForLanguage();
     }
     refresh();
   }
 
-  const items = SETTING_ROWS.map((row) => {
-    const el = h('div', { class: 'kk-srow' }, h('span', null, row.label));
+  // All built screens and canvases hold the old language: rebuild them from scratch (a ?lang= override
+  // would win over the new choice, so it goes). Only menus offer the row, never a race.
+  function reloadForLanguage() {
+    const url = new URL(location.href);
+    if (url.searchParams.has('lang')) { url.searchParams.delete('lang'); location.replace(url.href); } else location.reload();
+  }
+
+  const items = SETTING_ROWS.filter((row) => !(pause && row.menuOnly)).map((row) => {
+    const el = h('div', { class: 'kk-srow', 'data-key': row.key }, h('span', null, row.label));
     let item;
     if (row.type === 'range') {
       const bars = h('div', { class: 'kk-bars' });
@@ -58,7 +71,7 @@ export function createSettingsForm(ctx, { onBack }) {
     } else {
       const opts = h('div', { class: 'kk-opts' });
       const optEls = row.options.map(([v, label]) => {
-        const o = h('button', { class: 'kk-opt', onclick: (e) => { e.stopPropagation(); setValue(row, v); ctx.click(); } },
+        const o = h('button', { class: 'kk-opt', 'data-value': String(v), onclick: (e) => { e.stopPropagation(); setValue(row, v); ctx.click(); } },
           svg(PENCIL_CIRCLE, 'kk-circle'), label);
         opts.appendChild(o);
         return o;
@@ -89,32 +102,32 @@ export function createSettingsForm(ctx, { onBack }) {
 
 const CONTROLS = {
   keyboard: [
-    ['Direksiyon', [['k', '←'], ['k', '→'], ' ya da ', ['k', 'A'], ['k', 'D']]],
-    ['Gaz', [['k', '↑'], ['k', 'W']]],
-    ['Fren · geri', [['k', '↓'], ['k', 'S']]],
-    ['Drift · zıpla', [['k', 'Space'], ' basılı tut + yön']],
-    ['Eşya', [['k', 'X'], ['k', 'E'], ' · geriye: ', ['k', '↓'], '+', ['k', 'X']]],
-    ['Geri bak', [['k', 'C']]],
-    ['Duraklat', [['k', 'Esc'], ['k', 'P']]],
-    ['Ses', [['k', 'M']]],
-    ['Yeniden başla', [['k', 'R'], ' (Zamana Karşı)']],
+    ['steer', [['k', '←'], ['k', '→'], t('ctl.or'), ['k', 'A'], ['k', 'D']]],
+    ['gas', [['k', '↑'], ['k', 'W']]],
+    ['brake', [['k', '↓'], ['k', 'S']]],
+    ['drift', [['k', 'Space'], t('ctl.holdSteer')]],
+    ['item', [['k', 'X'], ['k', 'E'], t('ctl.itemBack'), ['k', '↓'], '+', ['k', 'X']]],
+    ['look', [['k', 'C']]],
+    ['pause', [['k', 'Esc'], ['k', 'P']]],
+    ['mute', [['k', 'M']]],
+    ['restart', [['k', 'R'], t('ctl.restartTT')]],
   ],
   gamepad: [
-    ['Direksiyon', ['Sol çubuk ya da yön tuşları']],
-    ['Gaz', [['p', 'A'], ['pw', 'RT']]],
-    ['Fren · geri', [['p', 'B'], ['pw', 'LT']]],
-    ['Drift · zıpla', [['pw', 'RB'], ' basılı tut + yön']],
-    ['Eşya', [['p', 'X'], ['pw', 'LB'], ' · geriye: fren + eşya']],
-    ['Geri bak', [['p', 'Y']]],
-    ['Duraklat', [['pw', 'Start']]],
+    ['steer', [t('ctl.padSteer')]],
+    ['gas', [['p', 'A'], ['pw', 'RT']]],
+    ['brake', [['p', 'B'], ['pw', 'LT']]],
+    ['drift', [['pw', 'RB'], t('ctl.holdSteer')]],
+    ['item', [['p', 'X'], ['pw', 'LB'], t('ctl.padItemBack')]],
+    ['look', [['p', 'Y']]],
+    ['pause', [['pw', 'Start']]],
   ],
   touch: [
-    ['Direksiyon', ['Sol başparmağını sağa sola kaydır']],
-    ['Gaz', [['k', 'GAZ'], ' basılı tut (ya da Oto gaz)']],
-    ['Drift · zıpla', [['k', 'DRIFT'], ' basılı tut + yön']],
-    ['Eşya', [['k', 'EŞYA'], ' ya da eşya penceresi']],
-    ['Fren · geri', [['k', 'FREN']]],
-    ['Duraklat', ['Üstteki ❚❚ düğmesi']],
+    ['steer', [t('ctl.touchSteer')]],
+    ['gas', [['k', t('touch.gas')], t('ctl.touchGas')]],
+    ['drift', [['k', t('touch.drift')], t('ctl.holdSteer')]],
+    ['item', [['k', t('touch.item')], t('ctl.touchItem')]],
+    ['brake', [['k', t('touch.brake')]]],
+    ['pause', [t('ctl.touchPause')]],
   ],
 };
 
@@ -129,11 +142,11 @@ export function glyphRow(parts) {
 
 export function controlRows(device, filter = null) {
   const list = CONTROLS[device] || CONTROLS.keyboard;
-  return list.filter(([label]) => !filter || filter.includes(label))
-    .map(([label, parts]) => h('div', { class: 'kk-crow' }, h('span', null, label), h('div', null, glyphRow(parts))));
+  return list.filter(([id]) => !filter || filter.includes(id))
+    .map(([id, parts]) => h('div', { class: 'kk-crow' }, h('span', null, t('ctl.' + id)), h('div', null, glyphRow(parts))));
 }
 
-const DEVICES = [['keyboard', 'Klavye'], ['gamepad', 'Oyun kolu'], ['touch', 'Dokunmatik']];
+const DEVICES = [['keyboard', t('dev.keyboard')], ['gamepad', t('dev.gamepad')], ['touch', t('dev.touch')]];
 
 export function createControlsForm(ctx, { onBack }) {
   let device = ctx.device();

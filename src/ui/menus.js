@@ -4,28 +4,29 @@ import { h, svg, clear, tilt, up, cap, lt, setLt } from './dom.js';
 import { FocusList } from './nav.js';
 import { MODE_ART, portrait, trackSketch } from './icons.js';
 import { createSettingsForm, createControlsForm } from './forms.js';
+import { t } from '../i18n/i18n.js';
 
 const BACK_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="#f3ead3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const GEAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#2d2a32" stroke-width="2.2" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></g></svg>';
 const PAD = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#2d2a32" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><path d="M6 8h12a4 4 0 0 1 4 4l-.6 4a2.5 2.5 0 0 1-4.4 1.2L15.5 15h-7L7 17.2a2.5 2.5 0 0 1-4.4-1.2L2 12a4 4 0 0 1 4-4z"/><path d="M7 10.5v3M5.5 12h3"/></g><circle cx="16" cy="11" r="1.1" fill="#2d2a32"/><circle cx="18" cy="13" r="1.1" fill="#2d2a32"/></svg>';
 const RULE_INK = '<svg viewBox="0 0 280 18" aria-hidden="true"><g stroke="#2d2a32" stroke-width="2" fill="none" opacity=".55"><path d="M0 9h118M162 9h118"/><path d="M140 2l7 7-7 7-7-7z" fill="#d9483b" stroke="none"/></g></svg>';
 
-export const STAT_LABELS = [['speed', 'Hız'], ['accel', 'İvme'], ['handling', 'Yol tutuş'], ['weight', 'Ağırlık'], ['offroad', 'Arazi']];
+export const STAT_LABELS = ['speed', 'accel', 'handling', 'weight', 'offroad'].map((k) => [k, t('stat.' + k)]);
 
 const MODES = [
   // 'Prix' is French: written in capitals so the Turkish upper-casing leaves its I undotted
-  { id: 'gp', title: 'GRAND PRIX', text: 'Dört bölümlük kupa. Her yarış puan getirir.', tags: ['4 bölüm', 'puanlı'], plate: '#f2c14e' },
-  { id: 'single', title: 'Tek Yarış', text: 'Bir bölüm seç, yedi rakibe karşı yarış.', tags: ['1 bölüm', '8 sürücü'], plate: '#d9483b' },
-  { id: 'tt', title: 'Zamana Karşı', text: 'Tek başına, en iyi turunun hayaletine karşı.', tags: ['hayalet', 'rekor'], plate: '#5f7fa3' },
-];
+  { id: 'gp', plate: '#f2c14e' },
+  { id: 'single', plate: '#d9483b' },
+  { id: 'tt', plate: '#5f7fa3' },
+].map((m) => ({ ...m, title: t(`mode.${m.id}.title`), text: t(`mode.${m.id}.text`), tags: [t(`mode.${m.id}.tag1`), t(`mode.${m.id}.tag2`)] }));
 
 const CLASSES = [
-  { cls: '80', plate: 'var(--rose)', name: 'İnce kâğıt', text: 'Sakin hız, bol düşünme payı.', color: '#f8f2e4', edge: ['#e7dcc2', '#d8cba9'], layers: 1, gauge: 1, curl: true },
-  { cls: '120', plate: 'var(--blue)', name: 'Defter kâğıdı', text: 'Asıl yarış burada başlıyor.', color: '#dfeaf0', edge: ['#b3c9d6', '#9db7c6'], layers: 3, gauge: 2, lined: true,
+  { cls: '80', plate: 'var(--rose)', color: '#f8f2e4', edge: ['#e7dcc2', '#d8cba9'], layers: 1, gauge: 1, curl: true },
+  { cls: '120', plate: 'var(--blue)', color: '#dfeaf0', edge: ['#b3c9d6', '#9db7c6'], layers: 3, gauge: 2, lined: true,
     pattern: 'repeating-linear-gradient(180deg, transparent 0 1.4em, rgba(95,127,163,.42) 1.4em calc(1.4em + 1.5px)), linear-gradient(90deg, transparent 1.9em, rgba(217,72,59,.6) 1.9em calc(1.9em + 1.5px), transparent calc(1.9em + 1.5px))' },
-  { cls: '200', plate: 'var(--paper-hi)', name: 'Karton', text: 'Çok hızlı, hiç affetmez.', color: '#d6ad76', edge: ['#b88f58', '#a37b47'], layers: 8, gauge: 3,
+  { cls: '200', plate: 'var(--paper-hi)', color: '#d6ad76', edge: ['#b88f58', '#a37b47'], layers: 8, gauge: 3,
     pattern: 'radial-gradient(circle at 20% 30%, rgba(96,62,28,.4) 0 1px, transparent 1.6px) 0 0/13px 11px, radial-gradient(circle at 70% 60%, rgba(255,242,214,.45) 0 1px, transparent 1.6px) 0 0/17px 19px, radial-gradient(circle at 40% 80%, rgba(96,62,28,.25) 0 .5px, transparent 1.2px) 0 0/7px 9px' },
-];
+].map((c) => ({ ...c, name: t(`class.${c.cls}.name`), text: t(`class.${c.cls}.text`) }));
 
 export function sheet(content, { dk = 0, rot = 0, cls = '' } = {}) {
   return h('div', { class: 'kk-sheet ' + cls, style: { transform: `rotate(${rot}deg)` } },
@@ -42,11 +43,11 @@ export function createMenus(ctx) {
   // ------------------------------------------------------------- title
   // The book on the desk is the cover now (cinematics' title shot draws it, title lettering included);
   // the DOM only adds a pinned paper tag and takes the click or tap anywhere on the screen.
-  const coverWrap = h('div', { class: 'kk-coverwrap kk-hit', role: 'button', 'aria-label': 'Kâğıt Kart: başlamak için dokun' });
+  const coverWrap = h('div', { class: 'kk-coverwrap kk-hit', role: 'button', 'aria-label': t('title.aria') });
   const ctaGlyph = h('span', { 'data-glyph': 'confirm' });
   const cta = h('div', { class: 'kk-cover-cta' },
     h('i', { class: 'kk-tape' }),
-    sheet([h('span', null, 'Başlamak için dokun'), ctaGlyph], { dk: 1 }));
+    sheet([h('span', null, t('title.cta')), ctaGlyph], { dk: 1 }));
   coverWrap.append(h('h1', { class: 'kk-sr' }, 'Kâğıt Kart'), cta);
   let coverState = 'closed';
 
@@ -93,12 +94,15 @@ export function createMenus(ctx) {
   }
 
   // ------------------------------------------------------------- screen scaffolding
-  const STEP_NAMES = [['mode', 'Mod'], ['class', 'Gramaj'], ['character', 'Sürücü'], ['track', 'Bölüm']];
+  const STEP_IDS = ['mode', 'class', 'character', 'track'];
+  const STEP_NAMES = STEP_IDS.map((id) => [id, t('step.' + id)]);
+  // Grand Prix has no track step (the cup is fixed); the other modes walk all four.
+  const stepsOf = (mode) => STEP_NAMES.filter(([id]) => mode !== 'gp' || id !== 'track');
 
   function chrome(el, { title, kicker, back, step }) {
     if (back) {
       el.classList.add('kk-hasback');
-      const b = h('button', { class: 'kk-back kk-pop', 'aria-label': 'Geri' }, sheet(svg(BACK_ARROW), { dk: 4, rot: -2 }));
+      const b = h('button', { class: 'kk-back kk-pop', 'aria-label': t('nav.back') }, sheet(svg(BACK_ARROW), { dk: 4, rot: -2 }));
       b.addEventListener('click', (e) => { if (e.detail !== 0) { ctx.click(); back(); } });
       el.appendChild(b);
     }
@@ -106,16 +110,15 @@ export function createMenus(ctx) {
       kicker ? h('div', { class: 'kk-kicker' }, up(kicker)) : null,
       h('div', { class: 'kk-h' }, lt(title))], { dk: 2 })));
     if (step) {
-      const mode = game.selection?.mode || 'gp';
-      const names = STEP_NAMES.filter(([id]) => mode !== 'gp' || id !== 'track');
+      const names = stepsOf(game.selection?.mode || 'gp');
       const idx = names.findIndex(([id]) => id === step);
       el.appendChild(h('div', { class: 'kk-steps' }, names.map(([id, label], i) =>
         h('div', { class: 'kk-step' + (i < idx ? ' is-done' : i === idx ? ' is-now' : '') },
           h('b', null, lt(String(i + 1), 'label', { colors: { fill: i === idx ? 'var(--mustard)' : i < idx ? 'var(--ink)' : 'var(--ink3)', shadow: i === idx ? 'rgba(0,0,0,.5)' : 'rgba(45,42,50,.2)' } })), label))));
     }
     const prompts = h('div', { class: 'kk-prompts' },
-      h('span', null, h('span', { 'data-glyph': 'confirm' }), 'Seç'),
-      back ? h('span', null, h('span', { 'data-glyph': 'back' }), 'Geri') : null);
+      h('span', null, h('span', { 'data-glyph': 'confirm' }), t('nav.select')),
+      back ? h('span', null, h('span', { 'data-glyph': 'back' }), t('nav.back')) : null);
     el.appendChild(prompts);
   }
 
@@ -125,7 +128,7 @@ export function createMenus(ctx) {
   function buildMode() {
     const el = h('div', { class: 'kk-screen' });
     const back = () => ctx.api('setMenuScreen', 'title');
-    chrome(el, { title: 'Nasıl yarışalım?', kicker: 'Kâğıt Kart', back, step: 'mode' });
+    chrome(el, { title: t('menu.mode.title'), kicker: 'Kâğıt Kart', back, step: 'mode' });
     const row = h('div', { class: 'kk-row' });
     const items = MODES.map((m, i) => {
       const card = popDelay(h('button', { class: 'kk-card kk-pop' },
@@ -146,7 +149,7 @@ export function createMenus(ctx) {
       mini.appendChild(b);
       return { el: b, confirm: () => ctx.api('setMenuScreen', target) };
     };
-    items.push(mk('Ayarlar', GEAR, 'settings', 0), mk('Kontroller', PAD, 'controls', 1));
+    items.push(mk(t('menu.settings'), GEAR, 'settings', 0), mk(t('menu.controls'), PAD, 'controls', 1));
     el.appendChild(mini);
     const focus = new FocusList(ctx, { onBack: back });
     const idx = Math.max(0, MODES.findIndex((m) => m.id === game.selection?.mode));
@@ -157,16 +160,16 @@ export function createMenus(ctx) {
   function buildClass() {
     const el = h('div', { class: 'kk-screen' });
     const back = () => ctx.api('setMenuScreen', 'mode');
-    chrome(el, { title: 'Kâğıt gramajı', kicker: 'Hız sınıfı', back, step: 'class' });
+    chrome(el, { title: t('menu.class.title'), kicker: t('menu.class.kicker'), back, step: 'class' });
     const row = h('div', { class: 'kk-row' });
     const items = CLASSES.map((c, i) => {
       const shadows = [];
       for (let k = 1; k <= c.layers; k++) shadows.push(`${(k * 0.1).toFixed(2)}em ${(k * 0.1).toFixed(2)}em 0 ${c.edge[k % 2]}`);
       const L = c.layers * 0.1;
       shadows.push(`${(L + 0.28).toFixed(2)}em ${(L + 0.34).toFixed(2)}em 0 rgba(45,42,50,.85)`);
-      const gauge = h('div', { class: 'kk-gauge' }, up('Hız'), [1, 2, 3].map((n) => h('i', { class: n <= c.gauge ? 'on' : '' })));
+      const gauge = h('div', { class: 'kk-gauge' }, up(t('class.gauge')), [1, 2, 3].map((n) => h('i', { class: n <= c.gauge ? 'on' : '' })));
       const face = h('div', { class: 'kk-face' + (c.lined ? ' is-lined' : ''), style: { background: c.pattern ? `${c.pattern}, ${c.color}` : c.color, boxShadow: shadows.join(','), transform: `rotate(${tilt(i + 2)}deg)` } },
-        h('div', { class: 'kk-w' }, lt(c.cls, 'card', { colors: { plate: c.plate } }), h('small', null, 'g')),
+        h('div', { class: 'kk-w' }, lt(c.cls, 'card', { colors: { plate: c.plate } }), h('small', null, t('class.unit'))),
         h('div', { class: 'kk-name' }, c.name),
         h('p', null, c.text),
         gauge,
@@ -188,7 +191,7 @@ export function createMenus(ctx) {
   function buildCharacter() {
     const el = h('div', { class: 'kk-screen' });
     const back = () => ctx.api('setMenuScreen', 'class');
-    chrome(el, { title: 'Sürücünü seç', kicker: 'Sürücü', back, step: 'character' });
+    chrome(el, { title: t('menu.char.title'), kicker: t('menu.char.kicker'), back, step: 'character' });
     const roster = ctx.roster();
     const nameLt = lt('');
     const nameEl = h('div', { class: 'kk-h' }, nameLt);
@@ -198,7 +201,7 @@ export function createMenus(ctx) {
       return { key, label, ticks };
     });
     el.appendChild(h('div', { class: 'kk-charinfo kk-pop' }, sheet([
-      h('div', { class: 'kk-kicker' }, up('Sürücü kartı')), nameEl, animalEl,
+      h('div', { class: 'kk-kicker' }, up(t('menu.char.card'))), nameEl, animalEl,
       h('div', { class: 'kk-stats' }, statRows.map((s) => [h('span', null, s.label), s.ticks]))], { dk: 1 })));
     const strip = h('div', { class: 'kk-roster' });
     const chosen = game.selection?.characterId;
@@ -237,7 +240,9 @@ export function createMenus(ctx) {
     const el = h('div', { class: 'kk-screen' });
     const back = () => ctx.api('setMenuScreen', 'character', { characterId: game.selection?.characterId || 'tilki' });
     const tt = game.selection?.mode === 'tt';
-    chrome(el, { title: 'Bölüm seç', kicker: `${tt ? 'Zamana Karşı' : 'Tek Yarış'} · adım 4/4`, back });
+    const steps = stepsOf(tt ? 'tt' : 'single'); // this screen only exists outside Grand Prix
+    const kicker = t('menu.track.kicker', { mode: t(tt ? 'mode.tt.title' : 'mode.single.title'), n: steps.findIndex(([id]) => id === 'track') + 1, total: steps.length });
+    chrome(el, { title: t('menu.track.title'), kicker, back });
     const defs = ctx.cup().map((id) => ctx.tracks()[id]).filter(Boolean);
     const numEl = h('div', { class: 'kk-kicker' });
     const titleLt = lt('');
@@ -258,15 +263,15 @@ export function createMenus(ctx) {
       return {
         el: tab,
         onFocus: () => {
-          numEl.textContent = up(`Bölüm ${d.chapter ?? i + 1}`);
+          numEl.textContent = up(t('chapter.n', { n: d.chapter ?? i + 1 }));
           setLt(titleLt, d.name || d.id);
           subEl.textContent = d.subtitle || '';
           sketchEl.innerHTML = trackSketch(d.points);
           clear(bestEl);
           const best = tt ? ctx.best(d.id) : null;
           if (best && (best.lap || best.race)) {
-            if (best.race) bestEl.append(h('span', null, 'Rekor'), ctx.fmt(best.race));
-            if (best.lap) bestEl.append(h('span', null, 'En iyi tur'), ctx.fmt(best.lap));
+            if (best.race) bestEl.append(h('span', null, t('menu.best.record')), ctx.fmt(best.race));
+            if (best.lap) bestEl.append(h('span', null, t('menu.best.lap')), ctx.fmt(best.lap));
           }
           if (game.menuScreen === 'track') ctx.api('setMenuScreen', 'track', { trackId: d.id });
         },
@@ -287,11 +292,12 @@ export function createMenus(ctx) {
   function buildForm(kind) {
     const el = h('div', { class: 'kk-screen' });
     const back = () => ctx.api('setMenuScreen', 'mode');
-    chrome(el, { title: kind === 'settings' ? 'Ayarlar' : 'Kontroller', kicker: 'Kitabın ayarları', back });
+    const title = kind === 'settings' ? t('menu.settings') : t('menu.controls');
+    chrome(el, { title, kicker: t('menu.form.kicker'), back });
     const form = kind === 'settings' ? createSettingsForm(ctx, { onBack: back }) : createControlsForm(ctx, { onBack: back });
     el.querySelector('.kk-head').remove();
     el.appendChild(h('div', { class: 'kk-form kk-pop' }, sheet([
-      h('div', { class: 'kk-h' }, lt(kind === 'settings' ? 'Ayarlar' : 'Kontroller')), form.el], { dk: 2 })));
+      h('div', { class: 'kk-h' }, lt(title)), form.el], { dk: 2 })));
     return { el, focus: form.focus, form };
   }
 
@@ -352,11 +358,11 @@ export function createIntroCard(ctx) {
   const def = game.trackDef || game.track?.def || {};
   const name = def.name || '';
   const card = h('div', { class: 'kk-intro kk-pop' }, sheet([
-    h('div', { class: 'kk-kicker' }, up(`Bölüm ${def.chapter ?? ''}`.trim())),
+    h('div', { class: 'kk-kicker' }, up(def.chapter == null ? t('chapter.word') : t('chapter.n', { n: def.chapter }))),
     h('div', { class: 'kk-h' }, lt(name)),
     svg(RULE_INK, 'kk-intro-rule'),
     def.subtitle ? h('p', null, def.subtitle) : null], { dk: 1 }));
-  const skip = h('button', { class: 'kk-skip kk-pop' }, sheet([h('span', { 'data-glyph': 'confirm' }), 'Geç'], { dk: 4, rot: 1.5 }));
+  const skip = h('button', { class: 'kk-skip kk-pop' }, sheet([h('span', { 'data-glyph': 'confirm' }), t('intro.skip')], { dk: 4, rot: 1.5 }));
   el.append(card, skip);
   skip.addEventListener('click', (e) => { if (e.detail !== 0) { ctx.click(); ctx.api('skipCinematic'); } });
   ctx.glyphs(el);
