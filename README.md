@@ -2,7 +2,7 @@
 
 **A kart racer that takes place inside a pop-up book.** The scenery folds up out of the page as you drive toward it, and the karts, drivers and items are made of paper and stationery.
 
-**[▶ Play it in your browser](https://burakerdemci.github.io/kagit-kart/)** (desktop or phone, keyboard, gamepad or touch)
+**[▶ Play it in your browser](https://burakerdemci.github.io/kagit-kart/)** (desktop or phone, keyboard, gamepad or touch; in English or Turkish)
 
 ![Racing at dusk on Bosphorus Night: the paper fox drifts through a corner with sparks under its wheels while a black cat kart pulls alongside, the lit city and the red suspension bridge behind them](docs/media/race.gif)
 
@@ -24,11 +24,12 @@
 ## What's in it
 
 - **Four chapters**, each with its own print style:
-  - *Papatya Çayırı*, a daisy meadow
-  - *Boğaz Gecesi*, the Bosphorus at dusk, with a suspension bridge
-  - *Buzul Geçidi*, a glacier pass with a void to fall into
-  - *Yazı Masası*, a race across the writing desk itself, on a ruled-notebook road
-- **Eight drivers** with their own stats: Tarçın the fox, Nilüfer the frog, Paytak the penguin, Pofuduk the bear, Kömür the cat, Pervane the owl, Havuç the rabbit and Mürekkep the octopus.
+  - *Daisy Meadow* (Papatya Çayırı), a daisy meadow
+  - *Bosphorus Night* (Boğaz Gecesi), the Bosphorus at dusk, with a suspension bridge
+  - *Glacier Pass* (Buzul Geçidi), a glacier pass with a void to fall into
+  - *The Writing Desk* (Yazı Masası), a race across the writing desk itself, on a ruled-notebook road
+- **Eight drivers** with their own stats: Cinnamon the fox, Lily the frog, Waddles the penguin, Fluffy the bear, Soot the cat, Propeller the owl, Carrot the rabbit and Inky the octopus (in Turkish: Tarçın, Nilüfer, Paytak, Pofuduk, Kömür, Pervane, Havuç, Mürekkep).
+- **English and Turkish.** The game follows your browser language; switch it under Settings › Language, or open it with `?lang=en` / `?lang=tr`.
 - **Eight items**: a fountain-pen rocket (single or three), bubble gum, a paper plane (straight or homing), an inkwell, a cellophane shield and scissors.
 - **Three modes**: a four-chapter Grand Prix, a single race, and time trial against your own ghost.
 - **Speed classes named after paper weights**: 80 g, 120 g and 200 g.
