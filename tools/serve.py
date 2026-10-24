@@ -65,6 +65,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
     daemon_threads = True
     allow_reuse_address = True
+    # macOS resets connections past the listen backlog (default 5): the browser opens dozens of module
+    # requests at once and fx.js came back ERR_CONNECTION_RESET, so the game showed the load-failure card.
+    request_queue_size = 128
 
 
 def main():
